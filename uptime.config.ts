@@ -18,8 +18,7 @@ const pageConfig: PageConfig = {
 
 const workerConfig: WorkerConfig = {
   // Define all your monitors here
-  monitors: [
-            {
+  monitors: [{
       // Blog
       id: 'yuweu_blog',
       name: 'Blog',
@@ -55,7 +54,7 @@ const workerConfig: WorkerConfig = {
 
       expectedCodes: [200],
       timeout: 10000,
-    // },
+    },
     // // Example HTTP Monitor
     // {
     //   // `id` should be unique, history will be kept if the `id` remains constant
