@@ -7,66 +7,103 @@ import { MaintenanceConfig, PageConfig, WorkerConfig } from './types/config'
 
 const pageConfig: PageConfig = {
   // Title for your status page
-  title: "lyc8503's Status Page",
+  title: "yuwei's Status Page",
   // Links shown at the header of your status page, could set `highlight` to `true`
   links: [
-    { link: 'https://github.com/lyc8503', label: 'GitHub' },
-    { link: 'https://blog.lyc8503.net/', label: 'Blog' },
-    { link: 'mailto:me@lyc8503.net', label: 'Email Me', highlight: true },
+    { link: 'https://linkding.myuwei.dpdns.org', label: 'GitHub' },
+    { link: 'https://rin.wocaoleya.ccwu.cc', label: 'Blog' },
+    { link: 'https://omnimodel.dpdns.org', label: 'OmniModel', highlight: true },
   ],
 }
 
 const workerConfig: WorkerConfig = {
   // Define all your monitors here
   monitors: [
-    // Example HTTP Monitor
-    {
-      // `id` should be unique, history will be kept if the `id` remains constant
-      id: 'foo_monitor',
-      // `name` is used at status page and callback message
-      name: 'My API Monitor',
-      // `method` should be a valid HTTP Method
+            {
+      // Blog
+      id: 'yuweu_blog',
+      name: 'Blog',
       method: 'GET',
-      // `target` is a valid URL
-      target: 'https://example.com',
-      // [OPTIONAL] `tooltip` is ONLY used at status page to show a tooltip
-      tooltip: 'This is a tooltip for this monitor',
-      // [OPTIONAL] `statusPageLink` is ONLY used for clickable link at status page
-      statusPageLink: 'https://example.com',
-      // [OPTIONAL] `expectedCodes` is an array of acceptable HTTP response codes, if not specified, default to 2xx
+
+      // TODO：替换为你真实的官网地址
+      target: 'https://rin.wocaoleya.ccwu.cc/',
+
+      statusPageLink: 'https://rin.wocaoleya.ccwu.cc/',
       expectedCodes: [200],
-      // [OPTIONAL] `timeout` in millisecond, if not specified, default to 10000
       timeout: 10000,
-      // [OPTIONAL] headers to be sent
-      headers: {
-        'User-Agent': 'Uptimeflare',
-        Authorization: 'Bearer YOUR_TOKEN_HERE',
-      },
-      // [OPTIONAL] body to be sent (require POST/PUT/PATCH method)
-      // body: 'Hello, world!',
-      // [OPTIONAL] if specified, the response must contains the keyword to be considered as operational.
-      // responseKeyword: 'success',
-      // [OPTIONAL] if specified, the response must NOT contains the keyword to be considered as operational.
-      // responseForbiddenKeyword: 'bad gateway',
-      // [OPTIONAL] if specified, will call the check proxy to check the monitor, mainly for geo-specific checks
-      // refer to docs https://github.com/lyc8503/UptimeFlare/wiki/Check-proxy-setup before setting this value
-      // currently supports `worker://`, `globalping://` and `http(s)://` proxies
-      // checkProxy: 'worker://weur',
-      // [OPTIONAL] if true, the check will fallback to local if the specified proxy is down
-      // checkProxyFallback: true,
     },
-    // Example TCP Monitor
     {
-      id: 'test_tcp_monitor',
-      name: 'Example TCP Monitor',
-      // `method` should be `TCP_PING` for tcp monitors
-      method: 'TCP_PING',
-      // `target` should be `host:port` for tcp monitors
-      target: '1.2.3.4:22',
-      tooltip: 'My production server SSH',
-      statusPageLink: 'https://example.com',
-      timeout: 5000,
+      // OmniModel API
+      id: 'yuwei_api',
+      name: 'OmniModel',
+      method: 'GET',
+
+      // TODO：替换为真正可公开访问的健康检查接口
+      target: 'https://omnimodel.dpdns.org',
+
+      expectedCodes: [200],
+      timeout: 10000,
     },
+    {
+      // UptimeFlare 状态页
+      id: 'yuwei_linkding',
+      name: 'UptimeFlare 状态页',
+      method: 'GET',
+
+      // TODO：替换为 Cloudflare 控制台显示的真实地址
+      target: 'https://linkding.myuwei.dpdns.org/',
+
+      expectedCodes: [200],
+      timeout: 10000,
+    // },
+    // // Example HTTP Monitor
+    // {
+    //   // `id` should be unique, history will be kept if the `id` remains constant
+    //   id: 'foo_monitor',
+    //   // `name` is used at status page and callback message
+    //   name: 'My API Monitor',
+    //   // `method` should be a valid HTTP Method
+    //   method: 'GET',
+    //   // `target` is a valid URL
+    //   target: 'https://example.com',
+    //   // [OPTIONAL] `tooltip` is ONLY used at status page to show a tooltip
+    //   tooltip: 'This is a tooltip for this monitor',
+    //   // [OPTIONAL] `statusPageLink` is ONLY used for clickable link at status page
+    //   statusPageLink: 'https://example.com',
+    //   // [OPTIONAL] `expectedCodes` is an array of acceptable HTTP response codes, if not specified, default to 2xx
+    //   expectedCodes: [200],
+    //   // [OPTIONAL] `timeout` in millisecond, if not specified, default to 10000
+    //   timeout: 10000,
+    //   // [OPTIONAL] headers to be sent
+    //   headers: {
+    //     'User-Agent': 'Uptimeflare',
+    //     Authorization: 'Bearer YOUR_TOKEN_HERE',
+    //   },
+    //   // [OPTIONAL] body to be sent (require POST/PUT/PATCH method)
+    //   // body: 'Hello, world!',
+    //   // [OPTIONAL] if specified, the response must contains the keyword to be considered as operational.
+    //   // responseKeyword: 'success',
+    //   // [OPTIONAL] if specified, the response must NOT contains the keyword to be considered as operational.
+    //   // responseForbiddenKeyword: 'bad gateway',
+    //   // [OPTIONAL] if specified, will call the check proxy to check the monitor, mainly for geo-specific checks
+    //   // refer to docs https://github.com/lyc8503/UptimeFlare/wiki/Check-proxy-setup before setting this value
+    //   // currently supports `worker://`, `globalping://` and `http(s)://` proxies
+    //   // checkProxy: 'worker://weur',
+    //   // [OPTIONAL] if true, the check will fallback to local if the specified proxy is down
+    //   // checkProxyFallback: true,
+    // },
+    // // Example TCP Monitor
+    // {
+    //   id: 'test_tcp_monitor',
+    //   name: 'Example TCP Monitor',
+    //   // `method` should be `TCP_PING` for tcp monitors
+    //   method: 'TCP_PING',
+    //   // `target` should be `host:port` for tcp monitors
+    //   target: '1.2.3.4:22',
+    //   tooltip: 'My production server SSH',
+    //   statusPageLink: 'https://example.com',
+    //   timeout: 5000,
+    // },
   ],
   // [Optional] Notification settings
   notification: {
