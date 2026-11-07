@@ -60,7 +60,7 @@ const workerConfig: WorkerConfig = {
       name: '邮件通知测试',
       method: 'GET',
       target: 'https://example.com/',
-      expectedCodes: [599],
+      expectedCodes: [200],
       timeout: 10000,
     },
     // // Example HTTP Monitor
@@ -116,7 +116,7 @@ const workerConfig: WorkerConfig = {
   notification: {
     webhook: {
       // 换成第 2 步获得的真实地址
-      url: 'https://uptime-flare-kappa.vercel.app/notify',
+      url: 'https://uptimeflare-apprise-yuweis-projects-b4a0d499.vercel.app/notify',
       method: 'POST',
       payloadType: 'json',
       payload: {
