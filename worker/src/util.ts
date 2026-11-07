@@ -127,11 +127,11 @@ async function webhookNotify(webhook: WebhookConfig, message: string) {
         throw 'Unrecognized payload type: ' + webhook.payloadType
     }
 
-    console.log(
-      `Webhook finalized parameters: ${method} ${url}, headers ${JSON.stringify(
-        Object.fromEntries(headers.entries())
-      )}, body ${JSON.stringify(body)}`
-    )
+    // console.log(
+    //   `Webhook finalized parameters: ${method} ${url}, headers ${JSON.stringify(
+    //     Object.fromEntries(headers.entries())
+    //   )}, body ${JSON.stringify(body)}`
+    // )
     const resp = await fetchTimeout(url, webhook.timeout ?? 5000, { method, headers, body })
 
     if (!resp.ok) {
