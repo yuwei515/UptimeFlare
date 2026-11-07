@@ -2,7 +2,9 @@ import { DurableObject } from 'cloudflare:workers'
 import { MonitorTarget } from '../../types/config'
 import { workerConfig } from '../../uptime.config'
 import { doMonitor, getStatus } from './monitor'
-import { formatAndNotify, getWorkerLocation } from './util'
+import { formatAndNotify, getWorkerLocation, isNotificationSuppressed } from './util'
+import { NOTIFICATION_STATE_KEY, processNotification } from './notifications'
+import type { NotificationStates } from './notifications'
 import { CompactedMonitorStateWrapper, getFromStore, setToStore } from './store'
 import pLimit from 'p-limit'
 
@@ -17,7 +19,28 @@ const Worker = {
     console.log(`Running scheduled event on ${workerLocation}...`)
 
     // Create a wrapped MonitorState from stored compacted state
-    const state = new CompactedMonitorStateWrapper(await getFromStore(env, 'state'))
+    const [monitorSnapshot, notificationSnapshot] = await Promise.all([
+      getFromStore(env, 'state'),
+      getFromStore(env, NOTIFICATION_STATE_KEY),
+    ])
+    const state = new CompactedMonitorStateWrapper(monitorSnapshot)
+    const notificationStates: NotificationStates = JSON.parse(notificationSnapshot || '{}')
+    const configuredWebhook = workerConfig.notification?.webhook
+    const notificationWebhooks = configuredWebhook
+      ? Array.isArray(configuredWebhook) ? configuredWebhook : [configuredWebhook]
+      : []
+    // Drop retry state for monitors removed from the configuration.
+    const monitorIds = new Set(workerConfig.monitors.map((monitor) => monitor.id))
+    let removedNotificationState = false
+    for (const id of Object.keys(notificationStates)) {
+      if (!monitorIds.has(id)) {
+        delete notificationStates[id]
+        removedNotificationState = true
+      }
+    }
+    if (removedNotificationState) {
+      await setToStore(env, NOTIFICATION_STATE_KEY, JSON.stringify(notificationStates))
+    }
     state.data.overallDown = 0
     state.data.overallUp = 0
 
@@ -70,20 +93,6 @@ const Worker = {
 
           monitorStatusChanged = true
           try {
-            if (
-              // grace period not set OR ...
-              workerConfig.notification?.gracePeriod === undefined ||
-              // only when we have sent a notification for DOWN status, we will send a notification for UP status (within 30 seconds of possible drift)
-              currentTimeSecond - lastIncident.start[0] >=
-                (workerConfig.notification.gracePeriod + 1) * 60 - 30
-            ) {
-              await formatAndNotify(monitor, true, lastIncident.start[0], currentTimeSecond, 'OK')
-            } else {
-              console.log(
-                `grace period (${workerConfig.notification?.gracePeriod}m) not met, skipping webhook UP notification for ${monitor.name}`
-              )
-            }
-
             console.log('Calling config onStatusChange callback...')
             await workerConfig.callbacks?.onStatusChange?.(
               env,
@@ -120,49 +129,6 @@ const Worker = {
 
         const currentIncident = state.getIncident(monitor.id, state.incidentLen(monitor.id) - 1)
         try {
-          if (
-            // monitor status changed AND...
-            (monitorStatusChanged &&
-              // grace period not set OR ...
-              (workerConfig.notification?.gracePeriod === undefined ||
-                // have sent a notification for DOWN status
-                currentTimeSecond - currentIncident.start[0] >=
-                  (workerConfig.notification.gracePeriod + 1) * 60 - 30)) ||
-            // grace period is set AND...
-            (workerConfig.notification?.gracePeriod !== undefined &&
-              // grace period is met
-              currentTimeSecond - currentIncident.start[0] >=
-                workerConfig.notification.gracePeriod * 60 - 30 &&
-              currentTimeSecond - currentIncident.start[0] <
-                workerConfig.notification.gracePeriod * 60 + 30)
-          ) {
-            if (
-              currentIncident.start[0] !== currentTimeSecond &&
-              workerConfig.notification?.skipErrorChangeNotification
-            ) {
-              console.log(
-                'Skipping notification for following error reason change due to user config'
-              )
-            } else {
-              await formatAndNotify(
-                monitor,
-                false,
-                currentIncident.start[0],
-                currentTimeSecond,
-                status.err
-              )
-            }
-          } else {
-            console.log(
-              `Grace period (${workerConfig.notification
-                ?.gracePeriod}m) not met or no change (currently down for ${
-                currentTimeSecond - currentIncident.start[0]
-              }s, changed ${monitorStatusChanged}), skipping webhook DOWN notification for ${
-                monitor.name
-              }`
-            )
-          }
-
           if (monitorStatusChanged) {
             console.log('Calling config onStatusChange callback...')
             await workerConfig.callbacks?.onStatusChange?.(
@@ -191,6 +157,37 @@ const Worker = {
         } catch (e) {
           console.log('Error calling callback: ')
           console.log(e)
+        }
+      }
+
+      // Persist delivery/retry state separately from incident history and its write cooldown.
+      if (notificationWebhooks.length > 0) {
+        const incident = state.getIncident(monitor.id, state.incidentLen(monitor.id) - 1)
+        const before = JSON.stringify(notificationStates[monitor.id])
+        const next = await processNotification(
+          notificationStates[monitor.id],
+          {
+            monitorId: monitor.id,
+            up: status.up,
+            incidentStart: incident.start[0],
+            now: currentTimeSecond,
+            gracePeriodMinutes: workerConfig.notification?.gracePeriod ?? 0,
+            channelCount: notificationWebhooks.length,
+            suppressed: isNotificationSuppressed(monitor, currentTimeSecond),
+          },
+          (kind, channel, incidentStart) => formatAndNotify(
+            monitor,
+            kind === 'up',
+            incidentStart,
+            currentTimeSecond,
+            status.up ? 'OK' : status.err,
+            notificationWebhooks[channel]
+          )
+        )
+        if (next) notificationStates[monitor.id] = next
+        else delete notificationStates[monitor.id]
+        if (JSON.stringify(next) !== before) {
+          await setToStore(env, NOTIFICATION_STATE_KEY, JSON.stringify(notificationStates))
         }
       }
 

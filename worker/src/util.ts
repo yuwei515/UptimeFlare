@@ -79,12 +79,13 @@ function templateWebhookPlayload(payload: any, message: string) {
   }
 }
 
-async function webhookNotify(webhook: WebhookConfig, message: string) {
+async function webhookNotify(webhook: WebhookConfig, message: string): Promise<boolean> {
   if (Array.isArray(webhook)) {
+    const delivered: boolean[] = []
     for (const w of webhook) {
-      await webhookNotify(w, message)
+      delivered.push(await webhookNotify(w, message))
     }
-    return
+    return delivered.every(Boolean)
   }
 
   console.log(
@@ -141,54 +142,49 @@ async function webhookNotify(webhook: WebhookConfig, message: string) {
     } else {
       console.log('Webhook notification sent successfully, code: ' + resp.status)
     }
+    return resp.ok
   } catch (e) {
     console.log('Error calling webhook server: ' + e)
+    return false
   }
 }
 
-// Auxiliary function to format notification and send it via webhook
+// Keep skipped/maintenance checks out of retry accounting.
+function isNotificationSuppressed(monitor: MonitorTarget, timeNow: number): boolean {
+  if (workerConfig.notification?.skipNotificationIds?.includes(monitor.id)) {
+    console.log(`Skipping notification for ${monitor.name} (${monitor.id} in skipNotificationIds)`)
+    return true
+  }
+  const inMaintenance = maintenances.some(
+    (maintenance) =>
+      new Date(timeNow * 1000) >= new Date(maintenance.start) &&
+      (!maintenance.end || new Date(timeNow * 1000) <= new Date(maintenance.end)) &&
+      (!maintenance.monitors || maintenance.monitors.includes(monitor.id))
+  )
+  if (inMaintenance) {
+    console.log(`Skipping notification for ${monitor.name} (in maintenance)`)
+  }
+  return inMaintenance
+}
+
 const formatAndNotify = async (
   monitor: MonitorTarget,
   isUp: boolean,
   timeIncidentStart: number,
   timeNow: number,
-  reason: string
-) => {
-  // Skip notification if monitor is in the skip list
-  const skipList = workerConfig.notification?.skipNotificationIds
-  if (skipList && skipList.includes(monitor.id)) {
-    console.log(`Skipping notification for ${monitor.name} (${monitor.id} in skipNotificationIds)`)
-    return
-  }
-
-  // Skip notification if monitor is in maintenance
-  const maintenanceList = maintenances
-    .filter(
-      (m) =>
-        new Date(timeNow * 1000) >= new Date(m.start) &&
-        (!m.end || new Date(timeNow * 1000) <= new Date(m.end))
-    )
-    .map((e) => e.monitors || [])
-    .flat()
-
-  if (maintenanceList.includes(monitor.id)) {
-    console.log(`Skipping notification for ${monitor.name} (in maintenance)`)
-    return
-  }
-
-  if (workerConfig.notification?.webhook) {
-    const notification = formatStatusChangeNotification(
-      monitor,
-      isUp,
-      timeIncidentStart,
-      timeNow,
-      reason,
-      workerConfig.notification?.timeZone ?? 'Etc/GMT'
-    )
-    await webhookNotify(workerConfig.notification.webhook, notification)
-  } else {
-    console.log(`Webhook not set, skipping notification for ${monitor.name}`)
-  }
+  reason: string,
+  webhook: WebhookConfig | undefined = workerConfig.notification?.webhook
+): Promise<boolean> => {
+  if (isNotificationSuppressed(monitor, timeNow) || !webhook) return false
+  const notification = formatStatusChangeNotification(
+    monitor,
+    isUp,
+    timeIncidentStart,
+    timeNow,
+    reason,
+    workerConfig.notification?.timeZone ?? 'Etc/GMT'
+  )
+  return webhookNotify(webhook, notification)
 }
 
 export {
@@ -198,4 +194,5 @@ export {
   webhookNotify,
   formatStatusChangeNotification,
   formatAndNotify,
+  isNotificationSuppressed,
 }
