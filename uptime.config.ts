@@ -55,6 +55,15 @@ const workerConfig: WorkerConfig = {
       expectedCodes: [200],
       timeout: 10000,
     },
+    {
+      id: 'smtp_notification_test',
+      name: '邮件通知测试',
+      method: 'GET',
+      target: 'https://example.com/',
+      expectedCodes: [599],
+      timeout: 10000,
+      gracePeriod: 2,
+    },
     // // Example HTTP Monitor
     // {
     //   // `id` should be unique, history will be kept if the `id` remains constant
