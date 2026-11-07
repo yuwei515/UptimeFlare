@@ -62,7 +62,6 @@ const workerConfig: WorkerConfig = {
       target: 'https://example.com/',
       expectedCodes: [599],
       timeout: 10000,
-      gracePeriod: 2,
     },
     // // Example HTTP Monitor
     // {
@@ -128,6 +127,7 @@ const workerConfig: WorkerConfig = {
       timeout: 20000,
     },
     timeZone: 'Asia/Shanghai',
+    gracePeriod: 2,
   },
 }
 
