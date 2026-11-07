@@ -48,6 +48,32 @@ jobs:
           cd worker
           npm install
 
+      - name: Inject SMTP notification config
+        env:
+          SMTP_NOTIFY_URL: ${{ secrets.SMTP_NOTIFY_URL }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+
+          const value = process.env.SMTP_NOTIFY_URL;
+          if (!value) {
+            throw new Error('Missing SMTP_NOTIFY_URL');
+          }
+
+          const file = 'uptime.config.ts';
+          const text = fs.readFileSync(file, 'utf8');
+          const placeholder = "'__SMTP_NOTIFY_URL__'";
+
+          if (!text.includes(placeholder)) {
+            throw new Error('SMTP placeholder not found');
+          }
+
+          fs.writeFileSync(
+            file,
+            text.replace(placeholder, JSON.stringify(value))
+          );
+          NODE
+          
       - name: Build worker
         run: |
           cd worker
