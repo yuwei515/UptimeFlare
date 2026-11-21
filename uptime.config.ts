@@ -10,9 +10,12 @@ const pageConfig: PageConfig = {
   title: "yuwei's Status Page",
   // Links shown at the header of your status page, could set `highlight` to `true`
   links: [
-    { link: 'https://linkding.myuwei.dpdns.org', label: 'GitHub' },
-    { link: 'https://rin.wocaoleya.ccwu.cc', label: 'Blog' },
-    { link: 'https://omnimodel.dpdns.org', label: 'OmniModel', highlight: true },
+    // { link: 'https://linkding.GitHub.dpdns.org', label: 'GitHub' },
+    // { link: 'https://sink.wocaoleya.ccwu.cc/8zewnk', label: 'Blog', highlight: true },
+    { link: 'https://sink.wocaoleya.ccwu.cc/8zewnk', label: 'Blog' },
+    { link: 'https://sink.wocaoleya.ccwu.cc/h876x4', label: 'OmniModel/EN' },
+    { link: 'https://sink.wocaoleya.ccwu.cc/54jrrj', label: 'OmniModel/CN' },
+    { link: 'https://sink.wocaoleya.ccwu.cc/egt3t5', label: 'RelayX' }
   ],
 }
 
@@ -20,49 +23,95 @@ const workerConfig: WorkerConfig = {
   // Define all your monitors here
   monitors: [{
       // Blog
-      id: 'yuweu_blog',
+      id: 'blog',
       name: 'Blog',
       method: 'GET',
-
       // TODO：替换为你真实的官网地址
-      target: 'https://rin.wocaoleya.ccwu.cc/',
-
-      statusPageLink: 'https://rin.wocaoleya.ccwu.cc/',
+      target: 'https://sink.wocaoleya.ccwu.cc/8zewnk',
+      statusPageLink: 'https://sink.wocaoleya.ccwu.cc/8zewnk',
       expectedCodes: [200],
       timeout: 10000,
     },
     {
       // OmniModel API
-      id: 'yuwei_api',
+      id: 'omnimodel_api',
       name: 'OmniModel',
       method: 'GET',
-
       // TODO：替换为真正可公开访问的健康检查接口
-      target: 'https://omnimodel.dpdns.org',
-
+      target: 'https://sink.wocaoleya.ccwu.cc/h876x4',
       expectedCodes: [200],
       timeout: 10000,
     },
     {
-      // UptimeFlare 状态页
-      id: 'yuwei_linkding',
-      name: 'UptimeFlare 状态页',
+      // OmniModel API
+      id: 'omnimodel_api_cn',
+      name: 'OmniModel-CN',
       method: 'GET',
-
-      // TODO：替换为 Cloudflare 控制台显示的真实地址
-      target: 'https://linkding.myuwei.dpdns.org/',
-
+      // TODO：替换为真正可公开访问的健康检查接口
+      target: 'https://sink.wocaoleya.ccwu.cc/54jrrj',
       expectedCodes: [200],
       timeout: 10000,
     },
     {
-      id: 'smtp_notification_test',
-      name: '邮件通知测试',
+      // RelayX API
+      id: 'relayx_api',
+      name: 'RelayX',
       method: 'GET',
-      target: 'https://example.com/',
+      // TODO：替换为真正可公开访问的健康检查接口
+      target: 'https://sink.wocaoleya.ccwu.cc/egt3t5',
       expectedCodes: [200],
       timeout: 10000,
     },
+    {
+      // 服务器部署的mails服务
+      id: 'emails',
+      name: 'Emails',
+      method: 'GET',
+      // TODO：替换为真正可公开访问的健康检查接口
+      target: 'https://sink.wocaoleya.ccwu.cc/p57wau',
+      expectedCodes: [200],
+      timeout: 10000,
+    },
+    {
+      // cf部署的emails服务
+      id: 'myuwei_email',
+      name: 'YuWeiEmail',
+      method: 'GET',
+      // TODO：替换为真正可公开访问的健康检查接口
+      target: 'https://sink.wocaoleya.ccwu.cc/e4gu3b',
+      expectedCodes: [200],
+      timeout: 10000,
+    },
+    {
+      // cf部署的emails服务
+      id: 'omnimodel_email',
+      name: 'OmniModelEmail',
+      method: 'GET',
+      // TODO：替换为真正可公开访问的健康检查接口
+      target: 'https://sink.wocaoleya.ccwu.cc/edsjg8',
+      expectedCodes: [200],
+      timeout: 10000,
+    },
+    // {
+    //   // UptimeFlare 状态页
+    //   id: 'yuwei_linkding',
+    //   name: 'UptimeFlare 状态页',
+    //   method: 'GET',
+
+    //   // TODO：替换为 Cloudflare 控制台显示的真实地址
+    //   target: 'https://linkding.myuwei.dpdns.org/',
+
+    //   expectedCodes: [200],
+    //   timeout: 10000,
+    // },
+    // {
+    //   id: 'smtp_notification_test',
+    //   name: '邮件通知测试',
+    //   method: 'GET',
+    //   target: 'https://example.com/',
+    //   expectedCodes: [200],
+    //   timeout: 10000,
+    // },
     // // Example HTTP Monitor
     // {
     //   // `id` should be unique, history will be kept if the `id` remains constant
