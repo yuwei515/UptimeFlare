@@ -9,15 +9,15 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2.0.3
+        uses: hashicorp/setup-terraform@v4.0.1
         with:
           terraform_version: 1.6.4
 
       - name: Use Node.js 22.x
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
           node-version: 22.x
           cache: 'npm'
