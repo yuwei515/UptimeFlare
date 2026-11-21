@@ -7,7 +7,7 @@ import { MaintenanceConfig, PageConfig, WorkerConfig } from './types/config'
 
 const pageConfig: PageConfig = {
   // Title for your status page
-  title: "yuwei's Status Page",
+  title: "YuWei's Status Page",
   // Links shown at the header of your status page, could set `highlight` to `true`
   links: [
     // { link: 'https://linkding.GitHub.dpdns.org', label: 'GitHub' },
@@ -39,6 +39,7 @@ const workerConfig: WorkerConfig = {
       method: 'GET',
       // TODO：替换为真正可公开访问的健康检查接口
       target: 'https://sink.wocaoleya.ccwu.cc/h876x4',
+      statusPageLink: 'https://sink.wocaoleya.ccwu.cc/h876x4',
       expectedCodes: [200],
       timeout: 10000,
     },
@@ -49,6 +50,7 @@ const workerConfig: WorkerConfig = {
       method: 'GET',
       // TODO：替换为真正可公开访问的健康检查接口
       target: 'https://sink.wocaoleya.ccwu.cc/54jrrj',
+      statusPageLink: 'https://sink.wocaoleya.ccwu.cc/54jrrj',
       expectedCodes: [200],
       timeout: 10000,
     },
@@ -59,6 +61,7 @@ const workerConfig: WorkerConfig = {
       method: 'GET',
       // TODO：替换为真正可公开访问的健康检查接口
       target: 'https://sink.wocaoleya.ccwu.cc/egt3t5',
+      statusPageLink: 'https://sink.wocaoleya.ccwu.cc/egt3t5',
       expectedCodes: [200],
       timeout: 10000,
     },
@@ -69,6 +72,7 @@ const workerConfig: WorkerConfig = {
       method: 'GET',
       // TODO：替换为真正可公开访问的健康检查接口
       target: 'https://sink.wocaoleya.ccwu.cc/p57wau',
+      statusPageLink: 'https://sink.wocaoleya.ccwu.cc/p57wau',
       expectedCodes: [200],
       timeout: 10000,
     },
@@ -79,6 +83,7 @@ const workerConfig: WorkerConfig = {
       method: 'GET',
       // TODO：替换为真正可公开访问的健康检查接口
       target: 'https://sink.wocaoleya.ccwu.cc/e4gu3b',
+      statusPageLink: 'https://sink.wocaoleya.ccwu.cc/e4gu3b',
       expectedCodes: [200],
       timeout: 10000,
     },
@@ -89,6 +94,7 @@ const workerConfig: WorkerConfig = {
       method: 'GET',
       // TODO：替换为真正可公开访问的健康检查接口
       target: 'https://sink.wocaoleya.ccwu.cc/edsjg8',
+      statusPageLink: 'https://sink.wocaoleya.ccwu.cc/edsjg8',
       expectedCodes: [200],
       timeout: 10000,
     },
